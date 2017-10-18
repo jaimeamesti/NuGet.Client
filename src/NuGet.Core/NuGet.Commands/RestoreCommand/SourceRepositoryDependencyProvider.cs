@@ -29,7 +29,7 @@ namespace NuGet.Commands
         private readonly SourceRepository _sourceRepository;
         private readonly ILogger _logger;
         private readonly SourceCacheContext _cacheContext;
-        private readonly LocalNuspecCache _nuspecCache;
+        private readonly LocalPackageFileCache _nuspecCache;
         private FindPackageByIdResource _findPackagesByIdResource;
         private bool _ignoreFailedSources;
         private bool _ignoreWarning;
@@ -91,7 +91,7 @@ namespace NuGet.Commands
         SourceCacheContext cacheContext,
         bool ignoreFailedSources,
         bool ignoreWarning,
-        LocalNuspecCache nuspecCache)
+        LocalPackageFileCache nuspecCache)
         {
             if (sourceRepository == null)
             {

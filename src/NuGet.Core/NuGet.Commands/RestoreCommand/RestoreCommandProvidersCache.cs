@@ -26,7 +26,7 @@ namespace NuGet.Commands
         private readonly ConcurrentDictionary<string, NuGetv3LocalRepository> _globalCache
             = new ConcurrentDictionary<string, NuGetv3LocalRepository>(PathUtility.GetStringComparerBasedOnOS());
 
-        private readonly LocalNuspecCache _nuspecCache = new LocalNuspecCache();
+        private readonly LocalPackageFileCache _nuspecCache = new LocalPackageFileCache();
 
         public RestoreCommandProviders GetOrCreate(
             string globalPackagesPath,

@@ -1,10 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using NuGet.Common;
 using NuGet.Packaging;
 using NuGet.Protocol;
@@ -32,7 +33,7 @@ namespace NuGet.Repositories
             = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         // Cache nuspecs lazily
-        private readonly LocalNuspecCache _nuspecCache = null;
+        private readonly LocalPackageFileCache _packageFileCache = null;
 
         public VersionFolderPathResolver PathResolver { get; }
 
@@ -43,11 +44,11 @@ namespace NuGet.Repositories
         {
         }
 
-        public NuGetv3LocalRepository(string path, LocalNuspecCache nuspecCache)
+        public NuGetv3LocalRepository(string path, LocalPackageFileCache nuspecCache)
         {
             RepositoryRoot = path;
             PathResolver = new VersionFolderPathResolver(path);
-            _nuspecCache = nuspecCache ?? new LocalNuspecCache();
+            _packageFileCache = nuspecCache ?? new LocalPackageFileCache();
         }
 
         public LocalPackageInfo FindPackage(string packageId, NuGetVersion version)
@@ -79,7 +80,10 @@ namespace NuGet.Repositories
             }
 
             // nuspec
-            var nuspec = _nuspecCache.GetOrAdd(package.ManifestPath, package.ExpandedPath);
+            var nuspec = _packageFileCache.GetOrAddNuspec(package.ManifestPath, package.ExpandedPath);
+
+            // files
+            var files = _packageFileCache.GetOrAddFiles(package.ExpandedPath);
 
             // Create a new info to match the given id/version
             return new LocalPackageInfo(
@@ -88,7 +92,8 @@ namespace NuGet.Repositories
                 package.ExpandedPath,
                 package.ManifestPath,
                 package.ZipPath,
-                nuspec);
+                nuspec,
+                files);
         }
 
         public IEnumerable<LocalPackageInfo> FindPackagesById(string packageId)
@@ -145,9 +150,10 @@ namespace NuGet.Repositories
                         var manifestPath = PathResolver.GetManifestFilePath(id, version);
                         var zipPath = PathResolver.GetPackageFilePath(id, version);
 
-                        var nuspec = _nuspecCache.GetOrAdd(manifestPath, fullVersionDir);
+                        var nuspec = _packageFileCache.GetOrAddNuspec(manifestPath, fullVersionDir);
+                        var files = _packageFileCache.GetOrAddFiles(package.ExpandedPath);
 
-                        package = new LocalPackageInfo(id, version, fullVersionDir, manifestPath, zipPath, nuspec);
+                        package = new LocalPackageInfo(id, version, fullVersionDir, manifestPath, zipPath, nuspec, files);
 
                         // Cache the package, if it is valid it will not change
                         // for the life of this restore.

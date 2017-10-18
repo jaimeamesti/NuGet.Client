@@ -20,7 +20,8 @@ namespace NuGet.Repositories
             string path,
             string manifestPath,
             string zipPath,
-            Lazy<NuspecReader> nuspec)
+            Lazy<NuspecReader> nuspec,
+            Lazy<IReadOnlyList<string>> files)
         {
             Id = packageId;
             Version = version;
@@ -28,7 +29,7 @@ namespace NuGet.Repositories
             ManifestPath = manifestPath;
             ZipPath = zipPath;
             _nuspec = nuspec;
-            _files = new Lazy<IReadOnlyList<string>>(() => GetFiles());
+            _files = files;
         }
 
         public string Id { get; }
@@ -56,43 +57,6 @@ namespace NuGet.Repositories
         public override string ToString()
         {
             return Id + " " + Version + " (" + (ManifestPath ?? ZipPath) + ")";
-        }
-
-        /// <summary>
-        /// Read files from a package folder.
-        /// </summary>
-        private IReadOnlyList<string> GetFiles()
-        {
-            using (var packageReader = new PackageFolderReader(ExpandedPath))
-            {
-                // Get package files, excluding directory entries and OPC files
-                // This is sorted before it is written out
-                return packageReader.GetFiles()
-                    .Where(file => IsAllowedLibraryFile(file))
-                    .ToList();
-            }
-        }
-
-        /// <summary>
-        /// True if the file should be added to the lock file library
-        /// Fale if it is an OPC file or empty directory
-        /// </summary>
-        private static bool IsAllowedLibraryFile(string path)
-        {
-            switch (path)
-            {
-                case "_rels/.rels":
-                case "[Content_Types].xml":
-                    return false;
-            }
-
-            if (path.EndsWith("/", StringComparison.Ordinal)
-                || path.EndsWith(".psmdcp", StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }

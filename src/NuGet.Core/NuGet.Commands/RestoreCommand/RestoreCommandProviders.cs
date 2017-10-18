@@ -29,7 +29,7 @@ namespace NuGet.Commands
             IReadOnlyList<NuGetv3LocalRepository> fallbackPackageFolders,
             IReadOnlyList<IRemoteDependencyProvider> localProviders,
             IReadOnlyList<IRemoteDependencyProvider> remoteProviders,
-            LocalNuspecCache nuspecCache)
+            LocalPackageFileCache nuspecCache)
         {
             GlobalPackages = globalPackages ?? throw new ArgumentNullException(nameof(globalPackages));
             LocalProviders = localProviders ?? throw new ArgumentNullException(nameof(localProviders));
@@ -51,14 +51,14 @@ namespace NuGet.Commands
 
         public IReadOnlyList<IRemoteDependencyProvider> RemoteProviders { get; }
 
-        public LocalNuspecCache NuspecCache { get; }
+        public LocalPackageFileCache NuspecCache { get; }
 
         public static RestoreCommandProviders Create(
             string globalFolderPath,
             IEnumerable<string> fallbackPackageFolderPaths,
             IEnumerable<SourceRepository> sources,
             SourceCacheContext cacheContext,
-            LocalNuspecCache nuspecCache,
+            LocalPackageFileCache nuspecCache,
             ILogger log)
         {
             var globalPackages = new NuGetv3LocalRepository(globalFolderPath, nuspecCache);
