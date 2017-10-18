@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using NuGet.Common;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
@@ -100,41 +99,49 @@ namespace NuGet.Packaging
 
         public override IEnumerable<string> GetFiles()
         {
+            // Read all files starting at the root.
+            return GetFiles(folder: null);
+        }
+
+        public override IEnumerable<string> GetFiles(string folder)
+        {
             var searchFolder = new DirectoryInfo(_root.FullName);
 
-            // Enumerate root folder filtering out nupkg files
-            foreach (var file in searchFolder.GetFiles("*", SearchOption.TopDirectoryOnly).
-                Where(p => !p.FullName.EndsWith(PackagingCoreConstants.NupkgExtension, StringComparison.OrdinalIgnoreCase)))
+            if (!string.IsNullOrEmpty(folder))
             {
-                yield return GetRelativePath(_root, file);
+                // Search in the sub folder if one was specified
+                searchFolder = new DirectoryInfo(Path.Combine(_root.FullName, folder));
             }
 
-            // Enumerate all sub folders without filtering
-            foreach (var directory in searchFolder.GetDirectories("*", SearchOption.TopDirectoryOnly))
+            // Enumerate root folder filtering out nupkg files
+            foreach (var file in searchFolder.GetFiles("*", SearchOption.AllDirectories))
             {
-                foreach (var file in directory.GetFiles("*", SearchOption.AllDirectories))
+                var path = GetRelativePath(_root, file);
+
+                // disallow nupkgs in the root
+                if (!IsNupkg(path) || IsFileInRoot(path))
                 {
-                    yield return GetRelativePath(_root, file);
+                    yield return path;
                 }
             }
 
             yield break;
         }
 
-        public override IEnumerable<string> GetFiles(string folder)
+        /// <summary>
+        /// True if the path does not contain /
+        /// </summary>
+        private static bool IsFileInRoot(string path)
         {
-            var searchFolder = new DirectoryInfo(Path.Combine(_root.FullName, folder));
+            return path.IndexOf('/') == -1;
+        }
 
-            if (searchFolder.Exists)
-            {
-                foreach (var file in searchFolder.GetFiles("*", SearchOption.AllDirectories).
-                    Where(p => !p.FullName.EndsWith(PackagingCoreConstants.NupkgExtension, StringComparison.OrdinalIgnoreCase)))
-                {
-                    yield return GetRelativePath(_root, file);
-                }
-            }
-
-            yield break;
+        /// <summary>
+        /// True if the path ends with .nupkg
+        /// </summary>
+        private static bool IsNupkg(string path)
+        {
+            return path.EndsWith(PackagingCoreConstants.NupkgExtension, StringComparison.OrdinalIgnoreCase) == true;
         }
 
         /// <summary>

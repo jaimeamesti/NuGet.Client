@@ -60,7 +60,8 @@ namespace NuGet.Protocol
                 // This is sorted before it is written out
                 return packageReader.GetFiles()
                     .Where(file => IsAllowedLibraryFile(file))
-                    .ToList();
+                    .ToList()
+                    .AsReadOnly();
             }
         }
 
