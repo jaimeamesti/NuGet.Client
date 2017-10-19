@@ -12,7 +12,7 @@ using Xunit;
 
 namespace NuGet.Protocol.Tests
 {
-    public class LocalNuspecCacheTests
+    public class LocalPackageFileCacheTests
     {
         [Fact]
         public async Task LocalNuspecCache_GetNuspecTwiceVerifySameInstance()

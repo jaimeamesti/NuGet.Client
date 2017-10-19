@@ -27,6 +27,10 @@ namespace NuGet.Protocol
         private readonly ConcurrentDictionary<string, Lazy<IReadOnlyList<string>>> _filesCache
             = new ConcurrentDictionary<string, Lazy<IReadOnlyList<string>>>(PathUtility.GetStringComparerBasedOnOS());
 
+        // SHA512 path -> SHA512
+        private readonly ConcurrentDictionary<string, Lazy<string>> _sha512Cache
+            = new ConcurrentDictionary<string, Lazy<string>>(PathUtility.GetStringComparerBasedOnOS());
+
         public LocalPackageFileCache()
         {
         }
@@ -37,7 +41,7 @@ namespace NuGet.Protocol
         public Lazy<NuspecReader> GetOrAddNuspec(string manifestPath, string expandedPath)
         {
             return _nuspecCache.GetOrAdd(expandedPath,
-                e => new Lazy<NuspecReader>(() => GetNuspec(manifestPath, expandedPath)));
+                e => new Lazy<NuspecReader>(() => GetNuspec(manifestPath, e)));
         }
 
         /// <summary>
@@ -46,7 +50,17 @@ namespace NuGet.Protocol
         public Lazy<IReadOnlyList<string>> GetOrAddFiles(string expandedPath)
         {
             return _filesCache.GetOrAdd(expandedPath,
-                e => new Lazy<IReadOnlyList<string>>(() => GetFiles(expandedPath)));
+                e => new Lazy<IReadOnlyList<string>>(() => GetFiles(e)));
+        }
+
+        /// <summary>
+        /// Read the .sha512 file from disk.
+        /// </summary>
+        /// <remarks>Throws if the file is not found.</remarks>
+        public Lazy<string> GetOrAddSha512(string sha512Path)
+        {
+            return _sha512Cache.GetOrAdd(sha512Path,
+                e => new Lazy<string>(() => File.ReadAllText(e)));
         }
 
         /// <summary>

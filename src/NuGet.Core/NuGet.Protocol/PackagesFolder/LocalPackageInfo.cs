@@ -13,6 +13,7 @@ namespace NuGet.Repositories
     {
         private readonly Lazy<NuspecReader> _nuspec;
         private readonly Lazy<IReadOnlyList<string>> _files;
+        private readonly Lazy<string> _sha512;
 
         public LocalPackageInfo(
             string packageId,
@@ -20,16 +21,20 @@ namespace NuGet.Repositories
             string path,
             string manifestPath,
             string zipPath,
+            string sha512Path,
             Lazy<NuspecReader> nuspec,
-            Lazy<IReadOnlyList<string>> files)
+            Lazy<IReadOnlyList<string>> files,
+            Lazy<string> sha512)
         {
             Id = packageId;
             Version = version;
             ExpandedPath = path;
             ManifestPath = manifestPath;
             ZipPath = zipPath;
+            Sha512Path = sha512Path;
             _nuspec = nuspec;
             _files = files;
+            _sha512 = sha512;
         }
 
         public string Id { get; }
@@ -42,6 +47,8 @@ namespace NuGet.Repositories
 
         public string ZipPath { get; }
 
+        public string Sha512Path { get; }
+
         /// <summary>
         /// Caches the nuspec reader.
         /// If the nuspec does not exist this will throw a friendly exception.
@@ -53,6 +60,11 @@ namespace NuGet.Repositories
         /// Cached to avoid reading the same files multiple times.
         /// </summary>
         public IReadOnlyList<string> Files => _files.Value;
+
+        /// <summary>
+        /// SHA512 of the package.
+        /// </summary>
+        public string Sha512 => _sha512.Value;
 
         public override string ToString()
         {

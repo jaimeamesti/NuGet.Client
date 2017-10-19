@@ -68,7 +68,7 @@ namespace NuGet.Commands
             SourceCacheContext cacheContext,
             bool ignoreFailedSources,
             bool ignoreWarning)
-            : this(sourceRepository, logger, cacheContext, ignoreFailedSources, ignoreWarning, nuspecCache: null)
+            : this(sourceRepository, logger, cacheContext, ignoreFailedSources, ignoreWarning, fileCache: null)
         {
         }
 
@@ -80,7 +80,7 @@ namespace NuGet.Commands
         /// <param name="cacheContext">A source cache context.</param>
         /// <param name="ignoreFailedSources"><c>true</c> to ignore failed sources; otherwise <c>false</c>.</param>
         /// <param name="ignoreWarning"><c>true</c> to ignore warnings; otherwise <c>false</c>.</param>
-        /// <param name="nuspecCache">Optional nuspec cache.</param>
+        /// <param name="fileCache">Optional nuspec/file cache.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="sourceRepository" />
         /// is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="logger" /> is <c>null</c>.</exception>
@@ -91,7 +91,7 @@ namespace NuGet.Commands
         SourceCacheContext cacheContext,
         bool ignoreFailedSources,
         bool ignoreWarning,
-        LocalPackageFileCache nuspecCache)
+        LocalPackageFileCache fileCache)
         {
             if (sourceRepository == null)
             {
@@ -113,7 +113,7 @@ namespace NuGet.Commands
             _cacheContext = cacheContext;
             _ignoreFailedSources = ignoreFailedSources;
             _ignoreWarning = ignoreWarning;
-            _nuspecCache = nuspecCache;
+            _nuspecCache = fileCache;
         }
 
         /// <summary>

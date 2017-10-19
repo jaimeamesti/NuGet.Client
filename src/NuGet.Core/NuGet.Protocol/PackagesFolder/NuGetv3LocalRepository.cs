@@ -85,6 +85,9 @@ namespace NuGet.Repositories
             // files
             var files = _packageFileCache.GetOrAddFiles(package.ExpandedPath);
 
+            // sha512
+            var sha512 = _packageFileCache.GetOrAddSha512(package.Sha512Path);
+
             // Create a new info to match the given id/version
             return new LocalPackageInfo(
                 packageId,
@@ -92,8 +95,10 @@ namespace NuGet.Repositories
                 package.ExpandedPath,
                 package.ManifestPath,
                 package.ZipPath,
+                package.Sha512Path,
                 nuspec,
-                files);
+                files,
+                sha512);
         }
 
         public IEnumerable<LocalPackageInfo> FindPackagesById(string packageId)
@@ -149,11 +154,13 @@ namespace NuGet.Repositories
                     {
                         var manifestPath = PathResolver.GetManifestFilePath(id, version);
                         var zipPath = PathResolver.GetPackageFilePath(id, version);
+                        var sha512Path = PathResolver.GetHashPath(id, version);
 
                         var nuspec = _packageFileCache.GetOrAddNuspec(manifestPath, fullVersionDir);
                         var files = _packageFileCache.GetOrAddFiles(package.ExpandedPath);
+                        var sha512 = _packageFileCache.GetOrAddSha512(package.Sha512Path);
 
-                        package = new LocalPackageInfo(id, version, fullVersionDir, manifestPath, zipPath, nuspec, files);
+                        package = new LocalPackageInfo(id, version, fullVersionDir, manifestPath, zipPath, sha512Path, nuspec, files, sha512);
 
                         // Cache the package, if it is valid it will not change
                         // for the life of this restore.

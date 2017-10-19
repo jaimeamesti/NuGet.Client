@@ -127,28 +127,14 @@ namespace NuGet.Commands
                         previousLibrary = previousLibrary.Clone();
                     }
 
-                    var sha512 = File.ReadAllText(resolver.GetHashPath(package.Id, package.Version));
+                    var sha512 = package.Sha512;
                     var path = PathUtility.GetPathWithForwardSlashes(
                         resolver.GetPackageDirectory(package.Id, package.Version));
 
-                    var lockFileLib = previousLibrary;
-
-                    // If we have the same library in the lock file already, use that.
-                    if (previousLibrary == null ||
-                        previousLibrary.Sha512 != sha512 ||
-                        previousLibrary.Path != path)
-                    {
-                        // The existing library did not match, create a new one.
-                        lockFileLib = CreateLockFileLibrary(
-                            package,
-                            sha512,
-                            path);
-                    }
+                    // Create a new lock file library
+                    var lockFileLib = CreateLockFileLibrary(package, sha512, path);
 
                     lockFile.Libraries.Add(lockFileLib);
-
-                    var packageIdentity = new PackageIdentity(lockFileLib.Name, lockFileLib.Version);
-                    context.PackageFileCache.TryAdd(packageIdentity, lockFileLib.Files);
                 }
             }
 

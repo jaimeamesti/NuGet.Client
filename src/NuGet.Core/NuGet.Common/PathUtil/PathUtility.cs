@@ -55,7 +55,7 @@ namespace NuGet.Common
         /// </summary>
         public static string GetPathWithForwardSlashes(string path)
         {
-            if (path != null && path.IndexOf('\\') >= -1)
+            if (path != null && path.IndexOf('\\') > -1)
             {
                 return path.Replace('\\', '/');
             }

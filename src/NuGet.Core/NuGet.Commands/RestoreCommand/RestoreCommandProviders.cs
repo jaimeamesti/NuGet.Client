@@ -73,7 +73,7 @@ namespace NuGet.Commands
                     cacheContext,
                     ignoreFailedSources: true,
                     ignoreWarning: true,
-                    nuspecCache: nuspecCache)
+                    fileCache: nuspecCache)
             };
 
             // Add fallback sources as local providers also
@@ -90,7 +90,7 @@ namespace NuGet.Commands
                     cacheContext,
                     ignoreFailedSources: false,
                     ignoreWarning: false,
-                    nuspecCache: nuspecCache);
+                    fileCache: nuspecCache);
 
                 fallbackPackageFolders.Add(fallbackRepository);
                 localProviders.Add(provider);
@@ -106,7 +106,7 @@ namespace NuGet.Commands
                     cacheContext,
                     cacheContext.IgnoreFailedSources,
                     ignoreWarning: false,
-                    nuspecCache: nuspecCache);
+                    fileCache: nuspecCache);
 
                 remoteProviders.Add(provider);
             }
